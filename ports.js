@@ -19,7 +19,7 @@ var getPortsData = function () {
     var currentDate = new Date();
     var queryDate = new Date(currentDate);
 
-    nextOpenDay(queryDate);
+    queryDate = nextOpenDay(queryDate);
     var now = queryDate.getTime();
 
     var BASE_URL = 'http://api.trentoleaf.tk/app?time=';
@@ -69,7 +69,7 @@ var getPortsData = function () {
     ];
 
     // make the request
-    console.log("i Getting Ports data");
+    console.log("i Getting Ports data, time: " + now);
 
     var deferred = q.defer(); // wrap the result
 
@@ -113,6 +113,8 @@ function nextOpenDay (date) {
     date.setSeconds(0);
     date.setMinutes(30);
     date.setHours(7);
+
+    return date;
 }
 
 
