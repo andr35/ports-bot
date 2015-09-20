@@ -20,8 +20,9 @@ retrieve infos about room status from Ports
 var getPortsData = function () {
 
 	var currentDate = new Date();
-
-	console.log("Current Date: " + currentDate);
+	// calculate timeZoneOffset between US and Ita (if service is hosted in US)
+	// need to add the offset (from US to Greenwich) and (from Greenwich to Ita)
+	currentDate = new Date(currentDate.valueOf() + (currentDate.getTimezoneOffset() * 60000) + (120 * 60000));
 
 	var queryDate = new Date(currentDate);
 
