@@ -133,7 +133,7 @@ var createBuildingImg = function (data, floor) {
     var deferred = q.defer();
 
     // relative path of svgs
-    var url = __dirname + "/img/";
+    var url = "./img/";
 
     switch (floor) {
         case 11:
@@ -196,7 +196,7 @@ var createBuildingImg = function (data, floor) {
         }
     }
 
-    var url_svg_tmp  = __dirname + "/tmp/tmp" + counter + ".svg";
+    var url_svg_tmp  = "./tmp/tmp" + counter + ".svg";
     counter++;
 
     fs.writeFile(url_svg_tmp, $.html(), function(error) {
