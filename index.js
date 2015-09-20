@@ -7,7 +7,8 @@ var ports = require('./ports');
 var BASE_URL = "https://api.telegram.org/bot<token>/METHOD_NAME";
 // Token for PortsBot
 var TOKEN = "136374788:AAFSeFAdaHB7WarWxnK0UYeKvcsbQA5KlfM";
-
+// Name of the bot
+var BOT_NAME = "portsbot"; // in lowercase
 
 console.log("PORTS_BOT - starting...");
 // Bot Start
@@ -18,8 +19,10 @@ var bot = new Bot({
 })
 .on('message', function (message) {
     // new messages handling
-    console.log("+ New msg: '" + message.text + "' from " + message.from.first_name);
-    processMessage(message);
+    if (message != undefined && message.text != undefined  && message.from.first_name != undefined) {
+        console.log("+ New msg: '" + message.text + "' from " + message.from.first_name);
+        processMessage(message);
+    }
 })
 .start();
 
@@ -50,11 +53,41 @@ function processMessage (message) {
     var arg = null;
 
     if (text.indexOf(' ') === -1) {
+        // get string
         command = text.substring(1, text.length);
+        // check @ char in groups
+        if (command.indexOf('@') != -1) {
+            // get the name of the bot
+            var botName = command.substring(command.indexOf('@') + 1, command.length);
+            console.log(botName);
+            if (botName != BOT_NAME) {
+                // command not for PortsBot
+                console.log("> Command not for me");
+                return false;
+            } else {
+                // get the real command deleting the bot's name (command@bot -> command)
+                command = command.substring(0, command.indexOf('@'));
+            }
+        }
     }
     else {
         command = text.substring(1, text.indexOf(' '));
         arg = text.substring(text.indexOf(' '), text.length);
+
+        // check @ char in groups
+        if (command.indexOf('@') != -1) {
+            // get the name of the bot
+            var botName = command.substring(command.indexOf('@') + 1, text.indexOf(' '));
+
+            if (botName != BOT_NAME) {
+                // command not for PortsBot
+                console.log("> Command not for me");
+                return false;
+            } else {
+                // get the real command deleting the bot's name (command@bot -> command)
+                command = command.substring(0, command.indexOf('@'));
+            }
+        }
     }
 
     // check if command is valid
@@ -76,54 +109,40 @@ function processMessage (message) {
             }
 
             // execute command function
-            switch (command) {
-                case "start":
-                start(message);
-                break;
-                case "help":
-                help(message);
-                break;
-                case "lista_aule":
-                lista_aule(message, 9999);
-                break;
-                case "top10disponibili":
-                lista_aule(message, 10);
-                break;
-                case "mappa":
-                mappa(message, arg);
-                break;
-                default:
-                return false;
-            }
-            return true;
+            executeCmd (message, command, arg);
 
         });
     }
     else {
-
         // execute command function
-        switch (command) {
-            case "start":
-            start(message);
-            break;
-            case "help":
-            help(message);
-            break;
-            case "lista_aule":
-            lista_aule(message, 9999);
-            break;
-            case "top10disponibili":
-            lista_aule(message, 10);
-            break;
-            case "mappa":
-            mappa(message, arg);
-            break;
-            default:
-            return false;
-        }
-        return true;
+        executeCmd (message, command, arg);
     }
 }
+
+function executeCmd (message, command, arg) {
+    // execute command function
+    switch (command) {
+        case "start":
+        start(message);
+        break;
+        case "help":
+        help(message);
+        break;
+        case "lista_aule":
+        lista_aule(message, 9999);
+        break;
+        case "top10disponibili":
+        lista_aule(message, 10);
+        break;
+        case "mappa":
+        mappa(message, arg);
+        break;
+        default:
+        return false;
+    }
+    return true;
+}
+
 
 
 /*
