@@ -20,6 +20,9 @@ retrieve infos about room status from Ports
 var getPortsData = function () {
 
 	var currentDate = new Date();
+
+	console.log("Current Date: " + currentDate);
+
 	var queryDate = new Date(currentDate);
 
 	queryDate = nextOpenDay(queryDate);
@@ -110,7 +113,7 @@ var getPortsData = function () {
 // useful functions
 function nextOpenDay (date) {
 	if(date.getHours() >= CLOSE) {
-		this.addDay(date, 1);
+		addDay(date, 1);
 	}
 	date.setMilliseconds(0);
 	date.setSeconds(0);
