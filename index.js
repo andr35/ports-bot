@@ -42,6 +42,11 @@ function processMessage (message) {
 
     var text = message.text.toLowerCase();
 
+    // check if message contain a room
+    if (checkRoom (message, text)) {
+        return true;
+    }
+
     // check if msg is a command
     if (text.indexOf('/') !== 0) {
         console.log("> Not a command");
@@ -383,4 +388,88 @@ function sendGenericError (message) {
             console.log("! Sent no data from Ports error: " + err);
         }
     });
+}
+
+// check if the message contain a room
+function checkRoom (message, text) {
+    var ROOMS = [
+		"a101",
+		"a102",
+		"a103",
+		"a104",
+		"a105",
+		"a106",
+		"a107",
+		"a108",
+		"a201",
+		"a202",
+		"a203",
+		"a204",
+		"a205",
+		"a206",
+		"a207",
+		"a208",
+		"a209",
+		"a210",
+		"a211",
+		"a212",
+		"a213",
+		"a214",
+		"a215",
+		"a216",
+		"a217",
+		"a218",
+		"a219",
+		"a220",
+		"a221",
+		"a222",
+		"a223",
+		"a224",
+		"b101",
+		"b102",
+		"b103",
+		"b104",
+		"b105",
+		"b106",
+		"b107"
+	];
+
+    var result = false;
+
+    for (var i in ROOMS) {
+        if (text.indexOf(ROOMS[i]) != -1) {
+            console.log("> Find a room in a msg.");
+            result = true;
+
+            ports.getRoomImg(ROOMS[i])
+            .then(function(img) {
+
+                bot.sendPhoto({
+                    chat_id: message.chat.id,
+                    caption: "Qualcuno ha detto " + img.room.toUpperCase() + "?",
+                    files: {
+                        photo: img.url
+                    }
+                }, function (err) {
+                    if (!err) {
+                        console.log("> Sent room image.");
+                    } else {
+                        console.log("! Sending room image error: "  + err);
+                    }
+
+                    // delete the tmp svg and png
+                    fs.unlink(img.url);
+                    var svg = img.url.replace("png", "svg");
+                    fs.unlink(svg);
+                });
+
+                // image creation failed
+            }, function(err) {
+                console.log("! Image of a room not created: " + error);
+                sendGenericError(message);
+                return false;
+            });
+        }
+    }
+    return result;
 }

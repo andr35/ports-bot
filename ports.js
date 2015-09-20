@@ -251,6 +251,77 @@ var createBuildingImg = function (data, floor) {
 	return deferred.promise;
 };
 
+var getRoomImg = function (room) {
+	var colBlue = "#42A5F5";
+
+	var deferred = q.defer();
+
+	// relative path of svgs
+	var url = "./img/";
+
+	// recognize the room
+	if (room[0] == 'a') {
+		if (room[1] == '1') {
+			url = url + "Povo1PT.svg";
+		} else if (room[1] == '2') {
+			url = url + "Povo1P1.svg";
+		} else {
+			deferred.reject("Room not found.");
+			return deferred.promise;
+		}
+	} else if (room[0] == 'b') {
+		if (room == 'b106' || room == 'b107') {
+			url = url + "Povo2P1.svg";
+		} else {
+			url = url + "Povo2PT.svg";
+		}
+	} else {
+		deferred.reject("Room not found.");
+		return deferred.promise;
+	}
+
+	// load svg
+	var $ = cheerio.load(fs.readFileSync(url));
+
+	// fill the map
+	var className = room;
+	var idClassNameSvg = "#"+className.toLowerCase();
+	var rect =  $(idClassNameSvg);
+
+	if (rect != null) {
+		rect.attr('fill', colBlue);
+		// colore label
+		var idLabelSvg= idClassNameSvg+"t";
+		var label= $(idLabelSvg);
+		label.attr('fill', "white");
+	}
+
+	// write svg
+	var url_svg_tmp  = "./tmp/tmp" + counter + ".svg";
+	counter++;
+
+	fs.writeFile(url_svg_tmp, $.html(), function(error) {
+		if (!error) {
+
+			var url_image  = url_svg_tmp.replace("svg", "png");
+
+			// convert to image
+			svg2png(url_svg_tmp, url_image, 4.0, function (err) {
+				if (!err) {
+					// send image url and caption to calling function
+					deferred.resolve({url: url_image, room: room});
+				} else {
+					deferred.reject(err);
+				}
+			});
+		} else {
+			deferred.reject(error);
+		}
+	});
+	return deferred.promise;
+};
+
 
 exports.createBuildingImg = createBuildingImg;
 exports.getPortsData = getPortsData;
+exports.getRoomImg = getRoomImg;
