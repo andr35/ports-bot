@@ -139,7 +139,7 @@ var help = function(message) {
     "/top10disponibili - mostra le 10 aule libere per più tempo da adesso\n" +
     "/mappa - mostra lo stato delle aule sulla mappa. Il comando deve essere seguito " +
     "dalla coppia 'Polo-Piano' di cui si vogliono avere info (es: /mappa 11)\n" +
-    " Legenda: " +
+    " Legenda: \n" +
     " 11: Polo 1, Piano 1\n" +
     " 12: Polo 1, Piano 2\n" +
     " 21: Polo 2, Piano 1\n" +
