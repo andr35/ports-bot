@@ -8,6 +8,9 @@ var svg2png = require('svg2png');
 var room = require('./room');
 var Room = room.Room;
 
+// open close time
+var OPEN = 8;
+var CLOSE = 20;
 // counter for the tmp svg and img
 var counter = 0;
 
@@ -15,9 +18,6 @@ var counter = 0;
 retrieve infos about room status from Ports
 */
 var getPortsData = function () {
-
-	var OPEN = 8;
-	var CLOSE = 20;
 
 	var currentDate = new Date();
 	var queryDate = new Date(currentDate);
