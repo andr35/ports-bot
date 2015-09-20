@@ -72,7 +72,7 @@ function processMessage (message) {
         help(message);
         break;
         case "lista_aule":
-        lista_aule(message, Number.MAX_SAFE_INTEGER);
+        lista_aule(message, 9999);
         break;
         case "top10disponibili":
         lista_aule(message, 10);
@@ -170,7 +170,7 @@ var lista_aule = function(message, arg) {
 
         // create text for response message
         var text = "";
-        if (limit == Number.MAX_SAFE_INTEGER) {
+        if (limit == 9999) {
             text = "STATO AULE\n\n";
         } else {
             text = "TOP 10 AULE LIBERE ADESSO\n\n";
