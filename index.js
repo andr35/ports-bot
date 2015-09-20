@@ -257,6 +257,8 @@ var mappa = function (message, arg) {
     // retrieve data from ports and send the floor image
     ports.getPortsData()
     .then(function (data) {
+        console.log("> Got the data: " + data);
+
         bot.sendMessage({
             chat_id: message.chat.id,
             text: "Ok, aspetta un attimo che disegno la mappa..."
@@ -272,6 +274,8 @@ var mappa = function (message, arg) {
         // create the image
         ports.createBuildingImg(data, floor)
         .then(function (img) {
+
+            console.log("Sending the image: " + img.url);
             // send the image
             bot.sendPhoto({
                 chat_id: message.chat.id,
