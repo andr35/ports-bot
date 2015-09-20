@@ -228,11 +228,11 @@ var createBuildingImg = function (data, floor) {
                     // send image url and caption to calling function
                     deferred.resolve({url: url_image, caption: caption});
                 } else {
-                    deferred.reject();
+                    deferred.reject(err);
                 }
             });
         } else {
-            deferred.reject();
+            deferred.reject(error);
         }
     });
 
