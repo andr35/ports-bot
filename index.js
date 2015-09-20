@@ -298,6 +298,7 @@ var mappa = function (message, arg) {
 
             // image not created handling
         }, function(error) {
+            console.log("! Image not created: " + error);
             sendGenericError(message);
             return false;
         });
