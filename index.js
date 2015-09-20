@@ -18,7 +18,7 @@ var bot = new Bot({
 })
 .on('message', function (message) {
     // new messages handling
-    console.log("+ New msg: " + message.text);
+    console.log("+ New msg: '" + message.text + "' from " + message.from.first_name);
     processMessage(message);
 })
 .start();
@@ -63,28 +63,66 @@ function processMessage (message) {
         return false;
     }
 
-    // execute command function
-    switch (command) {
-        case "start":
-        start(message);
-        break;
-        case "help":
-        help(message);
-        break;
-        case "lista_aule":
-        lista_aule(message, 9999);
-        break;
-        case "top10disponibili":
-        lista_aule(message, 10);
-        break;
-        case "mappa":
-        mappa(message, arg);
-        break;
-        default:
-        return false;
-    }
+    // 'easter egg'
+    if (message.from.username == "povopresident") {
+        bot.sendMessage({
+            chat_id: message.chat.id,
+            text: "PovoPresident! 😮 \nLe recupero subito le informazioni che desidera..."
+        }, function (err ,msg) {
+            if (!err) {
+                console.log("> Sent greetins infos.");
+            } else {
+                console.log("! Sent greetings error: " + err);
+            }
 
-    return true;
+            // execute command function
+            switch (command) {
+                case "start":
+                start(message);
+                break;
+                case "help":
+                help(message);
+                break;
+                case "lista_aule":
+                lista_aule(message, 9999);
+                break;
+                case "top10disponibili":
+                lista_aule(message, 10);
+                break;
+                case "mappa":
+                mappa(message, arg);
+                break;
+                default:
+                return false;
+            }
+            return true;
+
+        });
+    }
+    else {
+
+        // execute command function
+        switch (command) {
+            case "start":
+            start(message);
+            break;
+            case "help":
+            help(message);
+            break;
+            case "lista_aule":
+            lista_aule(message, 9999);
+            break;
+            case "top10disponibili":
+            lista_aule(message, 10);
+            break;
+            case "mappa":
+            mappa(message, arg);
+            break;
+            default:
+            return false;
+        }
+        return true;
+    }
 }
 
 
