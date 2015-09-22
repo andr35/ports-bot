@@ -30,6 +30,7 @@
     <rect
        style="stroke:#1a1a1a;stroke-width:2.13151717;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="b107"
+       fill="white"
        transform="matrix(0,1,-1,0,0,0)"
        y="-721.9444"
        x="239.80077"
@@ -341,6 +342,7 @@
     <rect
        style="opacity:1;stroke:#1a1a1a;stroke-width:2.13151717;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="b106"
+       fill="white"
        transform="matrix(0,1,-1,0,0,0)"
        y="-492.95004"
        x="908.56415"
