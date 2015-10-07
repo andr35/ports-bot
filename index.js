@@ -37,7 +37,11 @@ function processMessage (message) {
         "help" :  help,
         "lista_aule" : lista_aule,
         "top10disponibili" : lista_aule,
-        "mappa" : mappa
+        "mappa" : mappa,
+        "11" : mappa,
+        "12" : mappa,
+        "21" : mappa,
+        "22" : mappa
     };
 
     var text = message.text.toLowerCase();
@@ -118,6 +122,18 @@ function processMessage (message) {
 
         });
     }
+    else if (message.from.first_name == "Williams" && message.from.last_name == "Rizzi") {
+        bot.sendMessage({
+            chat_id: message.chat.id,
+            text: "Willy...a te non rispondo...."
+        }, function (err ,msg) {
+            if (!err) {
+                console.log("> Sent greetins infos.");
+            } else {
+                console.log("! Sent greetings error: " + err);
+            }
+        });
+    }
     else {
         // execute command function
         executeCmd (message, command, arg);
@@ -141,6 +157,18 @@ function executeCmd (message, command, arg) {
         break;
         case "mappa":
         mappa(message, arg);
+        break;
+        case "11":
+        mappa(message, 11);
+        break;
+        case "12":
+        mappa(message, 12);
+        break;
+        case "21":
+        mappa(message, 21);
+        break;
+        case "22":
+        mappa(message, 22);
         break;
         default:
         return false;
@@ -167,7 +195,8 @@ var help = function(message) {
     " 11: Polo 1, Piano 1\n" +
     " 12: Polo 1, Piano 2\n" +
     " 21: Polo 2, Piano 1\n" +
-    " 22: Polo 2, Piano 2\n";
+    " 22: Polo 2, Piano 2\n" +
+    "/11, /12, /21, /22 - scorciatoie per il comando mappa\n";
 
     bot.sendMessage({
         chat_id: message.chat.id,
@@ -393,81 +422,102 @@ function sendGenericError (message) {
 // check if the message contain a room
 function checkRoom (message, text) {
     var ROOMS = [
-		"a101",
-		"a102",
-		"a103",
-		"a104",
-		"a105",
-		"a106",
-		"a107",
-		"a108",
-		"a201",
-		"a202",
-		"a203",
-		"a204",
-		"a205",
-		"a206",
-		"a207",
-		"a208",
-		"a209",
-		"a210",
-		"a211",
-		"a212",
-		"a213",
-		"a214",
-		"a215",
-		"a216",
-		"a217",
-		"a218",
-		"a219",
-		"a220",
-		"a221",
-		"a222",
-		"a223",
-		"a224",
-		"b101",
-		"b102",
-		"b103",
-		"b104",
-		"b105",
-		"b106",
-		"b107"
-	];
+        "a101",
+        "a102",
+        "a103",
+        "a104",
+        "a105",
+        "a106",
+        "a107",
+        "a108",
+        "a201",
+        "a202",
+        "a203",
+        "a204",
+        "a205",
+        "a206",
+        "a207",
+        "a208",
+        "a209",
+        "a210",
+        "a211",
+        "a212",
+        "a213",
+        "a214",
+        "a215",
+        "a216",
+        "a217",
+        "a218",
+        "a219",
+        "a220",
+        "a221",
+        "a222",
+        "a223",
+        "a224",
+        "b101",
+        "b102",
+        "b103",
+        "b104",
+        "b105",
+        "b106",
+        "b107"
+    ];
 
     var result = false;
 
+    var rooms_found = [];
+
     for (var i in ROOMS) {
         if (text.indexOf(ROOMS[i]) != -1) {
-            console.log("> Find a room in a msg.");
+            console.log("> Find a room in a msg. (" + ROOMS[i] + ")");
+            rooms_found.push(ROOMS[i]);
             result = true;
+        }
+    }
 
-            ports.getRoomImg(ROOMS[i])
-            .then(function(img) {
+    if (result) {
+        if (rooms_found.length <= 3) {
+            for (var j in rooms_found) {
+                ports.getRoomImg(rooms_found[j])
+                .then(function(img) {
 
-                bot.sendPhoto({
-                    chat_id: message.chat.id,
-                    caption: "Qualcuno ha detto " + img.room.toUpperCase() + "?",
-                    files: {
-                        photo: img.url
-                    }
-                }, function (err) {
-                    if (!err) {
-                        console.log("> Sent room image.");
-                    } else {
-                        console.log("! Sending room image error: "  + err);
-                    }
+                    bot.sendPhoto({
+                        chat_id: message.chat.id,
+                        caption: "Qualcuno ha detto " + img.room.toUpperCase() + "?",
+                        files: {
+                            photo: img.url
+                        }
+                    }, function (err) {
+                        if (!err) {
+                            console.log("> Sent room image.");
+                        } else {
+                            console.log("! Sending room image error: "  + err);
+                        }
 
-                    // delete the tmp svg and png
-                    fs.unlink(img.url);
-                    var svg = img.url.replace("png", "svg");
-                    fs.unlink(svg);
+                        // delete the tmp svg and png
+                        fs.unlink(img.url);
+                        var svg = img.url.replace("png", "svg");
+                        fs.unlink(svg);
+                    });
+
+                    // image creation failed
+                }, function(err) {
+                    console.log("! Image of a room not created: " + error);
+                    sendGenericError(message);
+                    return false;
                 });
-
-                // image creation failed
-            }, function(err) {
-                console.log("! Image of a room not created: " + error);
-                sendGenericError(message);
-                return false;
+            }
+        } else {
+            console.log("More than 3 rooms in a message.");
+            bot.sendMessage({
+                chat_id: message.chat.id,
+                text: "Troppe aule... non sto qui a mostrartele tutte..."
+            }, function (err ,msg) {
+                if (!err) {
+                    console.log("> Sent 'too much' room image.");
+                } else {
+                    console.log("! Sent 'too much' room image error: " + err);
+                }
             });
         }
     }
