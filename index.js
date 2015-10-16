@@ -10,6 +10,10 @@ var TOKEN = "136374788:AAFSeFAdaHB7WarWxnK0UYeKvcsbQA5KlfM";
 // Name of the bot
 var BOT_NAME = "portsbot"; // in lowercase
 
+// global variables (yes, I know they are bad...)
+var vicepresidents_messages_counter = 0;
+
+
 console.log("PORTS_BOT - starting...");
 // Bot Start
 var bot = new Bot({
@@ -112,9 +116,9 @@ function processMessage (message) {
             text: "PovoPresident! 😮 \nLe recupero subito le informazioni che desidera..."
         }, function (err ,msg) {
             if (!err) {
-                console.log("> Sent greetins infos.");
+                console.log("> Sent pres greetins infos.");
             } else {
-                console.log("! Sent greetings error: " + err);
+                console.log("! Sent pres greetings error: " + err);
             }
 
             // execute command function
@@ -122,15 +126,55 @@ function processMessage (message) {
 
         });
     }
+    else if (message.from.username == "povovicepresident") {
+
+        // asking too frequently
+        if (vicepresidents_messages_counter >= 3) {
+
+            bot.sendMessage({
+                chat_id: message.chat.id,
+                text: "PovoVicePresident 😠 non ti sembra di fare un pò troppe richieste?"
+            }, function (err ,msg) {
+                if (!err) {
+                    console.log("> Sent vicepres too much infos.");
+                } else {
+                    console.log("! Sent vicepres too much error: " + err);
+                }
+            });
+
+        } else { // ok, answer
+            vicepresidents_messages_counter++;
+            // reduce the counter after some time
+            setTimeout(function () {
+                vicepresidents_messages_counter--;
+                if (vicepresidents_messages_counter < 0) { // should never happen
+                    vicepresidents_messages_counter = 0;
+                }
+                console.log("VicePresident counter reduced: " + vicepresidents_messages_counter);
+            }, 60000);
+            bot.sendMessage({
+                chat_id: message.chat.id,
+                text: "PovoVicePresident 😒 per questa volta ti rispondo..."
+            }, function (err ,msg) {
+                if (!err) {
+                    console.log("> Sent vicepres greetins infos.");
+                } else {
+                    console.log("! Sent vicepres greetings error: " + err);
+                }
+                // execute command function
+                executeCmd (message, command, arg);
+            });
+        }
+    }
     else if (message.from.first_name == "Williams" && message.from.last_name == "Rizzi") {
         bot.sendMessage({
             chat_id: message.chat.id,
             text: "Willy...a te non rispondo...."
         }, function (err ,msg) {
             if (!err) {
-                console.log("> Sent greetins infos.");
+                console.log("> Sent willy greetins infos.");
             } else {
-                console.log("! Sent greetings error: " + err);
+                console.log("! Sent willy greetings error: " + err);
             }
         });
     }
