@@ -11,7 +11,7 @@ var openshift_domain = process.env.OPENSHIFT_APP_DNS;
 // Telegram Bot HTTP EndPoint
 var BASE_URL = "https://api.telegram.org/bot<token>/METHOD_NAME";
 // Token for PortsBot
-var TOKEN = "136374788:AAFSeFAdaHB7WarWxnK0UYeKvcsbQA5KlfM"; // insert here the token of your bot
+var TOKEN = ""; // insert here the token of your bot
 // Name of the bot
 var BOT_NAME = "portsbot"; // in lowercase
 // Webhook endpoint
