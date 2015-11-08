@@ -13,6 +13,3 @@
         "svg2png": "1.1.x"
     }
 }
-
-// Old api-wrapper (instead of node-telegram-bot-api)
-// node-telegram-bot": "0.1.x
