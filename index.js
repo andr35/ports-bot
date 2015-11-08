@@ -11,7 +11,7 @@ var openshift_domain = process.env.OPENSHIFT_APP_DNS;
 // Telegram Bot HTTP EndPoint
 var BASE_URL = "https://api.telegram.org/bot<token>/METHOD_NAME";
 // Token for PortsBot
-var TOKEN = ""; // insert here the token of your bot
+var TOKEN = "136374788:AAFSeFAdaHB7WarWxnK0UYeKvcsbQA5KlfM"; // insert here the token of your bot
 // Name of the bot
 var BOT_NAME = "portsbot"; // in lowercase
 // Webhook endpoint
@@ -24,7 +24,7 @@ var CERT_URI = __dirname + '/cert/cert.pem';
 // global variables (yes, I know they are bad...)
 var vicepresidents_messages_counter = 0;
 
-if (openshift_host != undefined && openshift_port != undefined && openshift_domain != undefined) {
+if (openshift_host !== undefined && openshift_port !== undefined && openshift_domain !== undefined) {
     console.log("Host: " + openshift_host + "\nPort: " + openshift_port + "\nDomain: " + openshift_domain + "\n");
 }
 // Bot Start
@@ -33,6 +33,9 @@ var bot = new TelegramBot(TOKEN);
 
 // Webhook
 // set the webhook where Telegram advise the bot about new messages
+if (WEBHOOK === undefined) {
+    WEBHOOK = "not defined";
+}
 console.log("> Setting webhook on " + WEBHOOK);
 bot.setWebHook(WEBHOOK, CERT_URI)
 .then(function (res) {
