@@ -1,4 +1,5 @@
-The OpenShift `nodejs` cartridge documentation can be found at:
+## PortsBot
+-----
+Telegram bot version of the Ports project hosted on [trentoleaf.tk](www.trentoleaf.tk).
 
-http://openshift.github.io/documentation/oo_cartridge_guide.html#nodejs
- 
+This bot has been projected to be hosted on openshift.
