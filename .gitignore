@@ -1,2 +1,4 @@
 node_modules/
 tmp/
+cert/key.pem
+cert/cert.pem

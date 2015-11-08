@@ -3,21 +3,23 @@ var unirest = require('unirest');
 var TelegramBot = require('node-telegram-bot-api');
 var ports = require('./ports');
 
+// openshift's environment variables for webhook
+var openshift_port = process.env.OPENSHIFT_NODEJS_PORT;
+var openshift_host = process.env.OPENSHIFT_NODEJS_IP;
+var openshift_domain = process.env.OPENSHIFT_APP_DNS;
+
 // Telegram Bot HTTP EndPoint
 var BASE_URL = "https://api.telegram.org/bot<token>/METHOD_NAME";
 // Token for PortsBot
 var TOKEN = ""; // insert here the token of your bot
 // Name of the bot
 var BOT_NAME = "portsbot"; // in lowercase
-
+// Webhook endpoint
+var WEBHOOK = openshift_host;
 // Certificates for Webhook connection (CERT_KEY_URI: private key, CERT_URI: public key)
 var CERT_KEY_URI = __dirname + '/cert/key.pem';
 var CERT_URI = __dirname + '/cert/cert.pem';
 
-// openshift's environment variables for webhook
-var openshift_port = process.env.OPENSHIFT_NODEJS_PORT;
-var openshift_host = process.env.OPENSHIFT_NODEJS_IP;
-var openshift_domain = process.env.OPENSHIFT_APP_DNS;
 
 // global variables (yes, I know they are bad...)
 var vicepresidents_messages_counter = 0;
@@ -27,33 +29,36 @@ if (openshift_host != undefined && openshift_port != undefined && openshift_doma
 }
 // Bot Start
 console.log("PORTS_BOT - starting...");
-/* Webhook
-var bot = new TelegramBot(TOKEN,  {
-webHook: {
-port: 443,
-host: openshift_host,
-key: CERT_KEY_URI,
-cert: CERT_URI
-}
-});
+var bot = new TelegramBot(TOKEN);
 
+// Webhook
 // set the webhook where Telegram advise the bot about new messages
-bot.setWebHook(openshift_domain + ':443/bot' + TOKEN, CERT_URI);
-*/
-
-/* Polling */
-var bot = new TelegramBot(TOKEN,  {
-    polling: true
+console.log("> Setting webhook on " + WEBHOOK);
+bot.setWebHook(WEBHOOK, CERT_URI)
+.then(function (res) {
+    console.log("> Webhook set up successfully!");
+    console.log("  Response: " + res);
+}, function (err) {
+    console.log("> Error while set up the Webhook:");
+    console.log("  Error: " + err);
+    // if webhook fails, use polling system
+    console.log("> Setting up polling...");
+    /* Polling */
+    bot = new TelegramBot(TOKEN,  {
+        polling: true
+    });
+})
+.finally(function () {
+    // listen for new messages
+    bot.on('message', function (message) {
+        // new messages handling
+        if (message != undefined && message.text != undefined  && message.from.first_name != undefined) {
+            console.log("+ New msg: '" + message.text + "' from " + message.from.first_name);
+            processMessage(message);
+        }
+    });
 });
 
-
-bot.on('message', function (message) {
-    // new messages handling
-    if (message != undefined && message.text != undefined  && message.from.first_name != undefined) {
-        console.log("+ New msg: '" + message.text + "' from " + message.from.first_name);
-        processMessage(message);
-    }
-});
 
 /*
 function called when a new message is incoming
@@ -406,13 +411,10 @@ var mappa = function (message, arg) {
             })
             .then(function (res) {
                 console.log("> Sent '" + floor + "' image.");
-                // delete the tmp svg and png
-                fs.unlink(img.url);
-                var svg = img.url.replace("png", "svg");
-                fs.unlink(svg);
-            },
-            function (err) {
+            }, function (err) {
                 console.log("! Sending " + floor + " image error: "  + err);
+            })
+            .finally(function (res, err) {
                 // delete the tmp svg and png
                 fs.unlink(img.url);
                 var svg = img.url.replace("png", "svg");
@@ -515,13 +517,10 @@ function checkRoom (message, text) {
                     })
                     .then(function (res) {
                         console.log("> Sent room image.");
-                        // delete the tmp svg and png
-                        fs.unlink(img.url);
-                        var svg = img.url.replace("png", "svg");
-                        fs.unlink(svg);
-                    },
-                    function (err) {
+                    }, function (err) {
                         console.log("! Sending room image error: "  + err);
+                    })
+                    .finally(function (res, err) {
                         // delete the tmp svg and png
                         fs.unlink(img.url);
                         var svg = img.url.replace("png", "svg");
