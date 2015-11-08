@@ -1,6 +1,11 @@
+/*
+THIS IS A OLD VERSION OF THE POSTS TELEGRAM BOT WHICH USE THE 'NODE-TELEGRAM-BOT' API WRAPPER
+INSTEAD OF THE NEW 'NODE-TELEGRAM-BOT-API' USED IN THE MORE RECENT VERSION
+*/
+
 var fs = require('fs');
 var unirest = require('unirest');
-var TelegramBot = require('node-telegram-bot-api');
+var Bot = require('node-telegram-bot');
 var ports = require('./ports');
 
 // Telegram Bot HTTP EndPoint
@@ -10,50 +15,25 @@ var TOKEN = ""; // insert here the token of your bot
 // Name of the bot
 var BOT_NAME = "portsbot"; // in lowercase
 
-// Certificates for Webhook connection (CERT_KEY_URI: private key, CERT_URI: public key)
-var CERT_KEY_URI = __dirname + '/cert/key.pem';
-var CERT_URI = __dirname + '/cert/cert.pem';
-
-// openshift's environment variables for webhook
-var openshift_port = process.env.OPENSHIFT_NODEJS_PORT;
-var openshift_host = process.env.OPENSHIFT_NODEJS_IP;
-var openshift_domain = process.env.OPENSHIFT_APP_DNS;
-
 // global variables (yes, I know they are bad...)
 var vicepresidents_messages_counter = 0;
 
-if (openshift_host != undefined && openshift_port != undefined && openshift_domain != undefined) {
-    console.log("Host: " + openshift_host + "\nPort: " + openshift_port + "\nDomain: " + openshift_domain + "\n");
-}
-// Bot Start
+
 console.log("PORTS_BOT - starting...");
-/* Webhook
-var bot = new TelegramBot(TOKEN,  {
-webHook: {
-port: 443,
-host: openshift_host,
-key: CERT_KEY_URI,
-cert: CERT_URI
-}
-});
-
-// set the webhook where Telegram advise the bot about new messages
-bot.setWebHook(openshift_domain + ':443/bot' + TOKEN, CERT_URI);
-*/
-
-/* Polling */
-var bot = new TelegramBot(TOKEN,  {
+// Bot Start
+var bot = new Bot({
+    token: TOKEN,
+    poll: true,
     polling: true
-});
-
-
-bot.on('message', function (message) {
+})
+.on('message', function (message) {
     // new messages handling
     if (message != undefined && message.text != undefined  && message.from.first_name != undefined) {
         console.log("+ New msg: '" + message.text + "' from " + message.from.first_name);
         processMessage(message);
     }
-});
+})
+.start();
 
 /*
 function called when a new message is incoming
@@ -156,11 +136,15 @@ function processMessage (message) {
         // asking too frequently
         if (vicepresidents_messages_counter >= 3) {
 
-            bot.sendMessage(message.chat.id, "PovoVicePresident 😠 non ti sembra di fare un pò troppe richieste?")
-            .then(function (res) {
-                console.log("> Sent vicepres too much infos.");
-            }, function (err) {
-                console.log("! Sent vicepres too much error: " + err);
+            bot.sendMessage({
+                chat_id: message.chat.id,
+                text: "PovoVicePresident 😠 non ti sembra di fare un pò troppe richieste?"
+            }, function (err ,msg) {
+                if (!err) {
+                    console.log("> Sent vicepres too much infos.");
+                } else {
+                    console.log("! Sent vicepres too much error: " + err);
+                }
             });
 
         } else { // ok, answer
@@ -173,22 +157,30 @@ function processMessage (message) {
                 }
                 console.log("VicePresident counter reduced: " + vicepresidents_messages_counter);
             }, 60000);
-
-            bot.sendMessage(message.chat.id, "PovoVicePresident 😒 per questa volta ti rispondo...")
-            .then(function (res) {
-                console.log("> Sent vicepres greetins infos.");
-            }, function (err) {
-                console.log("! Sent vicepres greetings error: " + err);
+            bot.sendMessage({
+                chat_id: message.chat.id,
+                text: "PovoVicePresident 😒 per questa volta ti rispondo..."
+            }, function (err ,msg) {
+                if (!err) {
+                    console.log("> Sent vicepres greetins infos.");
+                } else {
+                    console.log("! Sent vicepres greetings error: " + err);
+                }
+                // execute command function
+                executeCmd (message, command, arg);
             });
         }
     }
     else if (message.from.first_name == "Williams" && message.from.last_name == "Rizzi") {
-
-        bot.sendMessage(message.chat.id, "Willy...a te non rispondo....")
-        .then(function (res) {
-            console.log("> Sent willy greetins infos.");
-        }, function (err) {
-            console.log("! Sent willy greetings error: " + err);
+        bot.sendMessage({
+            chat_id: message.chat.id,
+            text: "Willy...a te non rispondo...."
+        }, function (err ,msg) {
+            if (!err) {
+                console.log("> Sent willy greetins infos.");
+            } else {
+                console.log("! Sent willy greetings error: " + err);
+            }
         });
     }
     else {
@@ -255,11 +247,15 @@ var help = function(message) {
     " 22: Polo 2, Piano 2\n" +
     "/11, /12, /21, /22 - scorciatoie per il comando mappa\n";
 
-    bot.sendMessage(message.chat.id, text)
-    .then(function (res) {
-        console.log("> Sent help infos.");
-    }, function (err) {
-        console.log("! Sent help info error: " + err);
+    bot.sendMessage({
+        chat_id: message.chat.id,
+        text: text
+    }, function (err ,msg) {
+        if (!err) {
+            console.log("> Sent help infos.");
+        } else {
+            console.log("! Sent help info error: " + err);
+        }
     });
 };
 
@@ -270,11 +266,15 @@ var start = function(message) {
     "Controlla la disponibilità delle aule di Povo con Ports!\n" +
     "Per maggiori info usa il comando /help";
 
-    bot.sendMessage(message.chat.id, text)
-    .then(function (res) {
-        console.log("> Sent start msg.");
-    }, function (err) {
-        console.log("! Sent start msg error: " + err);
+    bot.sendMessage({
+        chat_id: message.chat.id,
+        text: text
+    }, function (err ,msg) {
+        if (!err) {
+            console.log("> Sent start msg.");
+        } else {
+            console.log("! Sent start msg error: " + err);
+        }
     });
 };
 
@@ -287,12 +287,15 @@ var lista_aule = function(message, arg) {
 
     if (isNaN(limit)) {
         console.log("! Rooms list error: limit argument is NaN");
-
-        bot.sendMessage(message.chat.id, "Ops..qualcosa è andato storto...")
-        .then(function (res) {
-            console.log("> Sent rooms list NaN error msg.");
-        }, function (err) {
-            console.log("! Sent rooms list NaN error: " + err);
+        bot.sendMessage({
+            chat_id: message.chat.id,
+            text: "Ops..qualcosa è andato storto..."
+        }, function (err ,msg) {
+            if (!err) {
+                console.log("> Sent rooms list NaN error msg.");
+            } else {
+                console.log("! Sent rooms list NaN error: " + err);
+            }
         });
         return false;
     }
@@ -340,12 +343,17 @@ var lista_aule = function(message, arg) {
         }
 
         // send the message
-        bot.sendMessage(message.chat.id, text)
-        .then(function (res) {
-            console.log("> Sent rooms list.");
-        }, function (err) {
-            console.log("! Sent rooms list error: " + err);
+        bot.sendMessage({
+            chat_id: message.chat.id,
+            text: text
+        }, function (err ,msg) {
+            if (!err) {
+                console.log("> Sent rooms list.");
+            } else {
+                console.log("! Sent rooms list error: " + err);
+            }
         });
+
 
         // no data from Ports handling
     }, function (error) {
@@ -373,12 +381,15 @@ var mappa = function (message, arg) {
 
     // ask for the right floor
     if (!exist || isNaN(floor)) {
-
-        bot.sendMessage(message.chat.id, "Scegli anche il Polo e il Piano... (es: /mappa 12).\n /help per maggiori info.")
-        .then(function (res) {
-            console.log("> Sent rooms list floor error msg.");
-        }, function (err) {
-            console.log("! Sent rooms list floor error: " + err);
+        bot.sendMessage({
+            chat_id: message.chat.id,
+            text: "Scegli anche il Polo e il Piano... (es: /mappa 12).\n /help per maggiori info."
+        }, function (err ,msg) {
+            if (!err) {
+                console.log("> Sent rooms list floor error msg.");
+            } else {
+                console.log("! Sent rooms list floor error: " + err);
+            }
         });
         return false;
     }
@@ -388,12 +399,17 @@ var mappa = function (message, arg) {
     .then(function (data) {
         console.log("> Got Ports data.");
 
-        bot.sendMessage(message.chat.id, "Ok, aspetta un attimo che disegno la mappa...")
-        .then(function (res) {
-            console.log("> Sent wait map msg.");
-        }, function (err) {
-            console.log("! Sent map wait error: " + err);
+        bot.sendMessage({
+            chat_id: message.chat.id,
+            text: "Ok, aspetta un attimo che disegno la mappa..."
+        }, function (err ,msg) {
+            if (!err) {
+                console.log("> Sent wait map msg.");
+            } else {
+                console.log("! Sent map wait error: " + err);
+            }
         });
+
 
         // create the image
         ports.createBuildingImg(data, floor)
@@ -401,18 +417,19 @@ var mappa = function (message, arg) {
 
             console.log("> Sending the image: " + img.url);
             // send the image
-            bot.sendPhoto(message.chat.id, img.url, {
+            bot.sendPhoto({
+                chat_id: message.chat.id,
                 caption: img.caption,
-            })
-            .then(function (res) {
-                console.log("> Sent '" + floor + "' image.");
-                // delete the tmp svg and png
-                fs.unlink(img.url);
-                var svg = img.url.replace("png", "svg");
-                fs.unlink(svg);
-            },
-            function (err) {
-                console.log("! Sending " + floor + " image error: "  + err);
+                files: {
+                    photo: img.url
+                }
+            }, function (err, msg) {
+                if (!err) {
+                    console.log("> Sent '" + floor + "' image.");
+                } else {
+                    console.log("! Sending " + floor + " image error: "  + err);
+                }
+
                 // delete the tmp svg and png
                 fs.unlink(img.url);
                 var svg = img.url.replace("png", "svg");
@@ -439,13 +456,16 @@ function sendGenericError (message) {
     var text = "Ora non ho tempo per controllare... prova a bussare ad ogni porta...";
 
     // send the message
-    bot.sendMessage(message.chat.id, text)
-    .then(function (res) {
-        console.log("> Sent no data from Ports msg.");
-    }, function (err) {
-        console.log("! Sent no data from Ports error: " + err);
+    bot.sendMessage({
+        chat_id: message.chat.id,
+        text: text
+    }, function (err ,msg) {
+        if (!err) {
+            console.log("> Sent no data from Ports msg.");
+        } else {
+            console.log("! Sent no data from Ports error: " + err);
+        }
     });
-
 }
 
 // check if the message contain a room
@@ -510,18 +530,19 @@ function checkRoom (message, text) {
                 ports.getRoomImg(rooms_found[j])
                 .then(function(img) {
 
-                    bot.sendPhoto(message.chat.id, img.url, {
+                    bot.sendPhoto({
+                        chat_id: message.chat.id,
                         caption: "Qualcuno ha detto " + img.room.toUpperCase() + "?",
-                    })
-                    .then(function (res) {
-                        console.log("> Sent room image.");
-                        // delete the tmp svg and png
-                        fs.unlink(img.url);
-                        var svg = img.url.replace("png", "svg");
-                        fs.unlink(svg);
-                    },
-                    function (err) {
-                        console.log("! Sending room image error: "  + err);
+                        files: {
+                            photo: img.url
+                        }
+                    }, function (err) {
+                        if (!err) {
+                            console.log("> Sent room image.");
+                        } else {
+                            console.log("! Sending room image error: "  + err);
+                        }
+
                         // delete the tmp svg and png
                         fs.unlink(img.url);
                         var svg = img.url.replace("png", "svg");
@@ -537,12 +558,15 @@ function checkRoom (message, text) {
             }
         } else {
             console.log("More than 3 rooms in a message.");
-
-            bot.sendMessage(message.chat.id, "Troppe aule... non sto qui a mostrartele tutte...")
-            .then(function (res) {
-                console.log("> Sent 'too much' room image.");
-            }, function (err) {
-                console.log("! Sent 'too much' room image error: " + err);
+            bot.sendMessage({
+                chat_id: message.chat.id,
+                text: "Troppe aule... non sto qui a mostrartele tutte..."
+            }, function (err ,msg) {
+                if (!err) {
+                    console.log("> Sent 'too much' room image.");
+                } else {
+                    console.log("! Sent 'too much' room image error: " + err);
+                }
             });
         }
     }

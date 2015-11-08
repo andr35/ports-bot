@@ -7,9 +7,12 @@
     },
     "dependencies": {
     	"unirest": "0.4.x",
-        "node-telegram-bot": "0.1.x",
+        "node-telegram-bot-api": "0.15.x",
         "q": "1.4.x",
         "cheerio": "0.19.x",
         "svg2png": "1.1.x"
     }
 }
+
+// Old api-wrapper (instead of node-telegram-bot-api)
+// node-telegram-bot": "0.1.x
