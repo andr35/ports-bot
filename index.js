@@ -1,3 +1,4 @@
+var http = require('http');
 var fs = require('fs');
 var unirest = require('unirest');
 var TelegramBot = require('node-telegram-bot-api');
@@ -24,11 +25,25 @@ var CERT_URI = __dirname + '/cert/cert.pem';
 // global variables (yes, I know they are bad...)
 var vicepresidents_messages_counter = 0;
 
+// WebPage
+var webPage = "";
+fs.readFile(__dirname + '/index.html', function (err, data) {
+    webPage = err ? ("PortsBot") : (data);
+});
+
+http.createServer(function (req, res) {
+    res.writeHead(200);
+    res.write(webPage);
+    res.end();
+}).listen(80);
+console.log("i Basic http server listening on port 80.");
+
+
 if (openshift_host !== undefined && openshift_port !== undefined && openshift_domain !== undefined) {
     console.log("Host: " + openshift_host + "\nPort: " + openshift_port + "\nDomain: " + openshift_domain + "\n");
 }
 // Bot Start
-console.log("PORTS_BOT - starting...");
+console.log("i PORTS_BOT - starting...");
 var bot = new TelegramBot(TOKEN);
 
 // Webhook
@@ -191,7 +206,7 @@ function processMessage (message) {
                 console.log("! Sent vicepres greetings error: " + err);
             })
             .finally(function (res, err) {
-            	// execute command function
+                // execute command function
                 executeCmd (message, command, arg);
             });
         }
