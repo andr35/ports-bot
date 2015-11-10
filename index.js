@@ -185,6 +185,8 @@ function processMessage (message) {
             bot.sendMessage(message.chat.id, "PovoVicePresident 😒 per questa volta ti rispondo...")
             .then(function (res) {
                 console.log("> Sent vicepres greetins infos.");
+                // execute command function
+                executeCmd (message, command, arg);
             }, function (err) {
                 console.log("! Sent vicepres greetings error: " + err);
             });
