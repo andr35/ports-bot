@@ -189,6 +189,10 @@ function processMessage (message) {
                 executeCmd (message, command, arg);
             }, function (err) {
                 console.log("! Sent vicepres greetings error: " + err);
+            })
+            .finally(function (res, err) {
+            	// execute command function
+                executeCmd (message, command, arg);
             });
         }
     }
