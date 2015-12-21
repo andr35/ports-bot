@@ -29,7 +29,7 @@ var getPortsData = function () {
 	queryDate = nextOpenDay(queryDate);
 	var now = queryDate.getTime();
 
-	var BASE_URL = 'http://api.trentoleaf.tk/app?time=';
+	var BASE_URL = 'https://trentoleaf-api.herokuapp.com/app?time=';
 	var requests = [];
 	var data = [];
 
