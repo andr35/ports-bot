@@ -12,31 +12,74 @@ var openshift_domain = process.env.OPENSHIFT_APP_DNS;
 // Telegram Bot HTTP EndPoint
 var BASE_URL = "https://api.telegram.org/bot<token>/METHOD_NAME";
 // Token for PortsBot
-var TOKEN = ""; // insert here the token of your bot
+var TOKEN = "136374788:AAFSeFAdaHB7WarWxnK0UYeKvcsbQA5KlfM"; // insert here the token of your bot
 // Name of the bot
 var BOT_NAME = "portsbot"; // in lowercase
 // Webhook endpoint
-var WEBHOOK = openshift_host;
+var WEBHOOK = openshift_domain+':443/bot'+TOKEN;
 // Certificates for Webhook connection (CERT_KEY_URI: private key, CERT_URI: public key)
 var CERT_KEY_URI = __dirname + '/cert/key.pem';
 var CERT_URI = __dirname + '/cert/cert.pem';
 
 
-// global variables (yes, I know they are bad...)
+// global variables
 var vicepresidents_messages_counter = 0;
 
-// WebPage
-var webPage = "";
-fs.readFile(__dirname + '/index.html', function (err, data) {
-    webPage = err ? ("PortsBot") : (data);
-});
+var ROOMS = [
+    "a101",
+    "a102",
+    "a103",
+    "a104",
+    "a105",
+    "a106",
+    "a107",
+    "a108",
+    "a201",
+    "a202",
+    "a203",
+    "a204",
+    "a205",
+    "a206",
+    "a207",
+    "a208",
+    "a209",
+    "a210",
+    "a211",
+    "a212",
+    "a213",
+    "a214",
+    "a215",
+    "a216",
+    "a217",
+    "a218",
+    "a219",
+    "a220",
+    "a221",
+    "a222",
+    "a223",
+    "a224",
+    "b101",
+    "b102",
+    "b103",
+    "b104",
+    "b105",
+    "b106",
+    "b107"
+];
 
-http.createServer(function (req, res) {
-    res.writeHead(200);
-    res.write(webPage);
-    res.end();
-}).listen(80);
-console.log("i Basic http server listening on port 80.");
+
+// WebPage
+// var webPage = "";
+// fs.readFile(__dirname + '/index.html', function (err, data) {
+//     webPage = err ? ("PortsBot") : (data);
+// });
+//
+// http.createServer(function (req, res) {
+//     res.writeHead(200);
+//     res.write(webPage);
+//     res.end();
+// }).listen(80);
+// console.log("i Basic http server listening on port 80.");
 
 
 if (openshift_host !== undefined && openshift_port !== undefined && openshift_domain !== undefined) {
@@ -44,13 +87,9 @@ if (openshift_host !== undefined && openshift_port !== undefined && openshift_do
 }
 // Bot Start
 console.log("i PORTS_BOT - starting...");
-var bot = new TelegramBot(TOKEN);
+var bot = new TelegramBot(TOKEN, {webHook: {port: openshift_port, host: openshift_host}});
 
 // Webhook
-// set the webhook where Telegram advise the bot about new messages
-if (WEBHOOK === undefined) {
-    WEBHOOK = "not defined";
-}
 console.log("> Setting webhook on " + WEBHOOK);
 bot.setWebHook(WEBHOOK, CERT_URI)
 .then(function (res) {
@@ -67,6 +106,8 @@ bot.setWebHook(WEBHOOK, CERT_URI)
     });
 })
 .finally(function () {
+    console.log("> Ready...");
+
     // listen for new messages
     bot.on('message', function (message) {
         // new messages handling
@@ -75,7 +116,49 @@ bot.setWebHook(WEBHOOK, CERT_URI)
             processMessage(message);
         }
     });
+
+    // listen for inline queries
+    bot.on('inline_query', function (inline) {
+        // new inline handling
+        if (inline != undefined && inline.query != undefined && inline.from.first_name != undefined) {
+            console.log("+ New inline query: '" + inline.query + "' from " + inline.from.first_name);
+            processInlineQuery(inline);
+        }
+    });
 });
+
+
+
+/*
+*   InlineQuery
+*/
+function processInlineQuery(inline) {
+
+    var result = [];
+    var query = inline.query.toLowerCase();
+
+
+    // filter rooms
+    if (query == '') {
+        for (var i = 0; i < ROOMS.length; i++) {
+            result.push({type: 'article', id: (''+i), title: ROOMS[i], message_text: ('Aula ' + ROOMS[i]) });
+        }
+    } else {
+        for (var i = 0; i < ROOMS.length; i++) {
+            if (ROOMS[i].indexOf(query) !== -1) {
+                result.push({type: 'article', id: (''+i), title: ROOMS[i], message_text: ('Aula ' + ROOMS[i]) });
+            }
+        }
+    }
+
+    // send query
+    bot.answerInlineQuery(inline.id, result)
+    .then(function (res) {
+        console.log("> Sent inline query message.");
+    }, function (err) {
+        console.log("! Sent inline query error: " + err);
+    });
+}
 
 
 /*
@@ -273,18 +356,18 @@ var help = function(message) {
 
     var text = "PORTS - Povo Offer Rooms To Study\n\n" +
     "Comandi:\n" +
-    "/lista_aule - mostra la lista delle aule di Povo con il relativo stato\n" +
-    "/top10disponibili - mostra le 10 aule libere per più tempo da adesso\n" +
-    "/mappa - mostra lo stato delle aule sulla mappa. Il comando deve essere seguito " +
+    "*/lista_aule* - mostra la lista delle aule di Povo con il relativo stato\n" +
+    "/top10disponibili* - mostra le 10 aule libere per più tempo da adesso\n" +
+    "/mappa* - mostra lo stato delle aule sulla mappa. Il comando deve essere seguito " +
     "dalla coppia 'Polo-Piano' di cui si vogliono avere info (es: /mappa 11)\n" +
-    " Legenda: \n" +
-    " 11: Polo 1, Piano 1\n" +
-    " 12: Polo 1, Piano 2\n" +
-    " 21: Polo 2, Piano 1\n" +
-    " 22: Polo 2, Piano 2\n" +
-    "/11, /12, /21, /22 - scorciatoie per il comando mappa\n";
+    " _Legenda:_ \n" +
+    " *11*: Polo 1, Piano 1\n" +
+    " *12*: Polo 1, Piano 2\n" +
+    " *21*: Polo 2, Piano 1\n" +
+    " *22*: Polo 2, Piano 2\n" +
+    "*/11*, */12*, */21*, */22* - scorciatoie per il comando mappa\n";
 
-    bot.sendMessage(message.chat.id, text)
+    bot.sendMessage(message.chat.id, text, {parse_mode: "Markdown"})
     .then(function (res) {
         console.log("> Sent help infos.");
     }, function (err) {
@@ -295,11 +378,11 @@ var help = function(message) {
 // Sent start messsage
 var start = function(message) {
 
-    var text = "PORTS - Povo Offer Rooms To Study\n\n" +
+    var text = "*PORTS* - Povo Offer Rooms To Study\n\n" +
     "Controlla la disponibilità delle aule di Povo con Ports!\n" +
-    "Per maggiori info usa il comando /help";
+    "Per maggiori info usa il comando */help*";
 
-    bot.sendMessage(message.chat.id, text)
+    bot.sendMessage(message.chat.id, text, {parse_mode: "Markdown"})
     .then(function (res) {
         console.log("> Sent start msg.");
     }, function (err) {
@@ -337,9 +420,9 @@ var lista_aule = function(message, arg) {
         // create text for response message
         var text = "";
         if (limit == 9999) {
-            text = "STATO AULE\n\n";
+            text = "_STATO AULE_\n\n";
         } else {
-            text = "TOP 10 AULE LIBERE ADESSO\n\n";
+            text = "_TOP 10 AULE LIBERE ADESSO_\n\n";
         }
 
         // populate the message
@@ -347,29 +430,29 @@ var lista_aule = function(message, arg) {
 
             switch (data[i].class) {
                 case "dark-green":
-                text = text + "📗 " + data[i].number + ": Sempre libera...vai tranquillo";
+                text = text + "📗 *" + data[i].number + "*: Libera per tutta la giornata";
                 break;
                 case "green":
-                text = text + "📗 " + data[i].number + ": Libera per " + data[i].availability + " ore";
+                text = text + "📗 *" + data[i].number + "*: Libera per " + data[i].availability + " ore";
                 break;
                 case "yellow":
-                text = text + "📒 " + data[i].number + ": Libera per " + data[i].availability + " ore";
+                text = text + "📒 *" + data[i].number + "*: Libera per " + data[i].availability + " ore";
                 break;
                 case "orange":
-                text = text + "📙 " + data[i].number + ": Affrettati, sarà libera solo per " + data[i].availability + " ore";
+                text = text + "📙 *" + data[i].number + "*: Affrettati, sarà libera solo per " + data[i].availability + " ore";
                 break;
                 case "red":
-                text = text + "📕 " + data[i].number + ": Occupata";
+                text = text + "📕 *" + data[i].number + "*: Occupata";
                 break;
                 default:
-                text = text + "📘 " + data[i].number + ": Boh...";
+                text = text + "📘 *" + data[i].number + "*: Boh...";
                 break;
             }
             text = text + "\n";
         }
 
         // send the message
-        bot.sendMessage(message.chat.id, text)
+        bot.sendMessage(message.chat.id, text, {parse_mode: "Markdown"})
         .then(function (res) {
             console.log("> Sent rooms list.");
         }, function (err) {
@@ -417,7 +500,7 @@ var mappa = function (message, arg) {
     .then(function (data) {
         console.log("> Got Ports data.");
 
-        bot.sendMessage(message.chat.id, "Ok, aspetta un attimo che disegno la mappa...")
+        bot.sendMessage(message.chat.id, "_Ok, aspetta un attimo che disegno la mappa..._", {parse_mode: "Markdown"})
         .then(function (res) {
             console.log("> Sent wait map msg.");
         }, function (err) {
@@ -428,21 +511,15 @@ var mappa = function (message, arg) {
         ports.createBuildingImg(data, floor)
         .then(function (img) {
 
-            console.log("> Sending the image: " + img.url);
+            console.log("> Sending the image for floor: " + floor);
             // send the image
-            bot.sendPhoto(message.chat.id, img.url, {
+            bot.sendPhoto(message.chat.id, img.buffer, {
                 caption: img.caption,
             })
             .then(function (res) {
                 console.log("> Sent '" + floor + "' image.");
             }, function (err) {
                 console.log("! Sending " + floor + " image error: "  + err);
-            })
-            .finally(function (res, err) {
-                // delete the tmp svg and png
-                fs.unlink(img.url);
-                var svg = img.url.replace("png", "svg");
-                fs.unlink(svg);
             });
 
             // image not created handling
@@ -476,47 +553,6 @@ function sendGenericError (message) {
 
 // check if the message contain a room
 function checkRoom (message, text) {
-    var ROOMS = [
-        "a101",
-        "a102",
-        "a103",
-        "a104",
-        "a105",
-        "a106",
-        "a107",
-        "a108",
-        "a201",
-        "a202",
-        "a203",
-        "a204",
-        "a205",
-        "a206",
-        "a207",
-        "a208",
-        "a209",
-        "a210",
-        "a211",
-        "a212",
-        "a213",
-        "a214",
-        "a215",
-        "a216",
-        "a217",
-        "a218",
-        "a219",
-        "a220",
-        "a221",
-        "a222",
-        "a223",
-        "a224",
-        "b101",
-        "b102",
-        "b103",
-        "b104",
-        "b105",
-        "b106",
-        "b107"
-    ];
 
     var result = false;
 
@@ -536,19 +572,13 @@ function checkRoom (message, text) {
                 ports.getRoomImg(rooms_found[j])
                 .then(function(img) {
 
-                    bot.sendPhoto(message.chat.id, img.url, {
+                    bot.sendPhoto(message.chat.id, img.buffer, {
                         caption: "Qualcuno ha detto " + img.room.toUpperCase() + "?",
                     })
                     .then(function (res) {
                         console.log("> Sent room image.");
                     }, function (err) {
                         console.log("! Sending room image error: "  + err);
-                    })
-                    .finally(function (res, err) {
-                        // delete the tmp svg and png
-                        fs.unlink(img.url);
-                        var svg = img.url.replace("png", "svg");
-                        fs.unlink(svg);
                     });
 
                     // image creation failed

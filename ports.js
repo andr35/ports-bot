@@ -3,6 +3,7 @@ var q = require('q');
 var cheerio = require('cheerio');
 var fs = require('fs');
 var svg2png = require('svg2png');
+var extend = require('extend');
 
 // Room object
 var room = require('./room');
@@ -14,8 +15,33 @@ var CLOSE = 20;
 // counter for the tmp svg and img
 var counter = 0;
 
+// Cheerio svgs DOMs
+var	svg_files = [];
+
 /*
-retrieve infos about room status from Ports
+* Initialize the application loading all the svg images
+*/
+var initModule = function () {
+
+	console.log("Loading all SVGs DOMs....");
+
+	var base_url = './img/';
+
+	var maps = ["Povo1PT", "Povo1P1", "Povo2PT", "Povo2P1"];
+
+
+	for (var i in maps) {
+
+		var url = base_url + maps[i] + '.svg';
+		// load svg
+		var svg_string = fs.readFileSync(url, 'utf8');
+		svg_files.push({name: maps[i], svg: svg_string});
+	}
+};
+
+
+/*
+* retrieve infos about room status from Ports
 */
 var getPortsData = function () {
 
@@ -145,27 +171,42 @@ var createBuildingImg = function (data, floor) {
 	var deferred = q.defer();
 
 	// relative path of svgs
-	var url = "./img/";
+	var name = '';
 
 	switch (floor) {
 		case 11:
-		url = url + "Povo1PT.svg";
+		name = "Povo1PT";
 		break;
 		case 12:
-		url = url + "Povo1P1.svg";
+		name = "Povo1P1";
 		break;
 		case 21:
-		url = url + "Povo2PT.svg";
+		name = "Povo2PT";
 		break;
 		case 22:
-		url = url + "Povo2P1.svg";
+		name = "Povo2P1";
 		break;
 		default:
 		break;
 	}
 
-	// load svg
-	var $ = cheerio.load(fs.readFileSync(url));
+	if (name == '') {
+		deferred.reject("Room not found.");
+	}
+
+	// get svg dom
+	var $;
+
+	for (var i = 0; i < svg_files.length; i++) {
+		if (name == svg_files[i].name) {
+			$ = cheerio.load(svg_files[i].svg);
+			i = svg_files.length;
+		}
+	}
+
+	if ($ == undefined) {
+		deferred.reject("Cheerio dom not found.");
+	}
 
 	// fill the map
 	for(var i = 0, len = data.length; i < len; i++) {
@@ -208,44 +249,37 @@ var createBuildingImg = function (data, floor) {
 		}
 	}
 
-	var url_svg_tmp  = "./tmp/tmp" + counter + ".svg";
-	counter++;
 
-	fs.writeFile(url_svg_tmp, $.html(), function(error) {
-		if (!error) {
+	// convert to png
+	var sourceBuffer = new Buffer($.html());
+	svg2png(sourceBuffer)
+	.then(function (buffer) {
+		console.log("Converted svg2png");
 
-			var url_image  = url_svg_tmp.replace("svg", "png");
+		// create the caption
+		var caption  = "";
 
-			// convert to image
-			svg2png(url_svg_tmp, url_image, 4.0, function (err) {
-				if (!err) {
-					// create the caption
-					var caption  = "";
-
-					switch (floor) {
-						case 11:
-						caption = "Polo 1 - 1° Piano";
-						break;
-						case 12:
-						caption = "Polo 1 - 2° Piano";
-						break;
-						case 21:
-						caption = "Polo 2 - 1° Piano";
-						break;
-						case 22:
-						caption = "Polo 2 - 2° Piano";
-						break;
-					}
-
-					// send image url and caption to calling function
-					deferred.resolve({url: url_image, caption: caption});
-				} else {
-					deferred.reject(err);
-				}
-			});
-		} else {
-			deferred.reject(error);
+		switch (floor) {
+			case 11:
+			caption = "Polo 1 - 1° Piano";
+			break;
+			case 12:
+			caption = "Polo 1 - 2° Piano";
+			break;
+			case 21:
+			caption = "Polo 2 - 1° Piano";
+			break;
+			case 22:
+			caption = "Polo 2 - 2° Piano";
+			break;
 		}
+
+		// send image url and caption to calling function
+		deferred.resolve({buffer: buffer, caption: caption});
+	})
+	.catch(function (err) {
+		console.log("Conv svg2png error");
+		deferred.reject(err);
 	});
 
 	return deferred.promise;
@@ -256,32 +290,46 @@ var getRoomImg = function (room) {
 
 	var deferred = q.defer();
 
-	// relative path of svgs
-	var url = "./img/";
+	var name = '';
 
 	// recognize the room
 	if (room[0] == 'a') {
 		if (room[1] == '1') {
-			url = url + "Povo1PT.svg";
+			name = "Povo1PT";
 		} else if (room[1] == '2') {
-			url = url + "Povo1P1.svg";
+			name = "Povo1P1";
 		} else {
 			deferred.reject("Room not found.");
 			return deferred.promise;
 		}
 	} else if (room[0] == 'b') {
 		if (room == 'b106' || room == 'b107') {
-			url = url + "Povo2P1.svg";
+			name = "Povo2P1";
 		} else {
-			url = url + "Povo2PT.svg";
+			name = "Povo2PT";
 		}
 	} else {
 		deferred.reject("Room not found.");
 		return deferred.promise;
 	}
 
-	// load svg
-	var $ = cheerio.load(fs.readFileSync(url));
+	if (name == '') {
+		deferred.reject("Room not found.");
+	}
+
+	// get svg dom
+	var $;
+
+	for (var i = 0; i < svg_files.length; i++) {
+		if (name == svg_files[i].name) {
+			$ = cheerio.load(svg_files[i].svg);
+			i = svg_files.length;
+		}
+	}
+
+	if ($ == undefined) {
+		deferred.reject("Cheerio dom not found.");
+	}
 
 	// fill the map
 	var className = room;
@@ -296,31 +344,27 @@ var getRoomImg = function (room) {
 		label.attr('fill', "white");
 	}
 
-	// write svg
-	var url_svg_tmp  = "./tmp/tmp" + counter + ".svg";
-	counter++;
-
-	fs.writeFile(url_svg_tmp, $.html(), function(error) {
-		if (!error) {
-
-			var url_image  = url_svg_tmp.replace("svg", "png");
-
-			// convert to image
-			svg2png(url_svg_tmp, url_image, 4.0, function (err) {
-				if (!err) {
-					// send image url and caption to calling function
-					deferred.resolve({url: url_image, room: room});
-				} else {
-					deferred.reject(err);
-				}
-			});
-		} else {
-			deferred.reject(error);
-		}
+	// convert to png
+	var sourceBuffer = new Buffer($.html());
+	svg2png(sourceBuffer)
+	.then(function (buffer) {
+		console.log("Converted svg2png");
+		deferred.resolve({buffer: buffer, room: room});
+	})
+	.catch(function (err) {
+		console.log("Conv svg2png error");
+		deferred.reject(err);
 	});
+
 	return deferred.promise;
 };
 
+
+/* INITIALIZE MODULE */
+initModule();
+
+
+/* MODULE EXPORTS */
 
 exports.createBuildingImg = createBuildingImg;
 exports.getPortsData = getPortsData;

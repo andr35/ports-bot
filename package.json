@@ -1,15 +1,16 @@
 {
     "name": "PortsBot",
-    "version": "2.0.0",
+    "version": "3.0.0",
     "main": "index.js",
     "scripts": {
         "start": "node index.js"
     },
     "dependencies": {
     	"unirest": "0.4.x",
-        "node-telegram-bot-api": "0.15.x",
+        "node-telegram-bot-api": "0.20.x",
         "q": "1.4.x",
-        "cheerio": "0.19.x",
-        "svg2png": "1.1.x"
+        "cheerio": "0.20.x",
+        "svg2png": "3.0.x",
+        "extend": "3.0.x"
     }
 }
