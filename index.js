@@ -16,7 +16,7 @@ var TOKEN = "136374788:AAFSeFAdaHB7WarWxnK0UYeKvcsbQA5KlfM"; // insert here the 
 // Name of the bot
 var BOT_NAME = "portsbot"; // in lowercase
 // Webhook endpoint
-var WEBHOOK = openshift_domain+':443/bot'+TOKEN;
+var WEBHOOK = openshift_domain + ':443/bot' + TOKEN;
 // Certificates for Webhook connection (CERT_KEY_URI: private key, CERT_URI: public key)
 var CERT_KEY_URI = __dirname + '/cert/key.pem';
 var CERT_URI = __dirname + '/cert/cert.pem';
@@ -87,7 +87,13 @@ if (openshift_host !== undefined && openshift_port !== undefined && openshift_do
 }
 // Bot Start
 console.log("i PORTS_BOT - starting...");
-var bot = new TelegramBot(TOKEN, {webHook: {port: openshift_port, host: openshift_host}});
+var bot = new TelegramBot(TOKEN, {
+	webHook: {
+		port: openshift_port,
+		host: openshift_host,
+		key: CERT_KEY_URI,
+		cert: CERT_URI
+	}});
 
 // Webhook
 console.log("> Setting webhook on " + WEBHOOK);

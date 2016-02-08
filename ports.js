@@ -23,7 +23,7 @@ var	svg_files = [];
 */
 var initModule = function () {
 
-	console.log("Loading all SVGs DOMs....");
+	console.log("i Loading all SVGs DOMs....");
 
 	var base_url = './img/';
 
@@ -348,11 +348,11 @@ var getRoomImg = function (room) {
 	var sourceBuffer = new Buffer($.html());
 	svg2png(sourceBuffer)
 	.then(function (buffer) {
-		console.log("Converted svg2png");
+		console.log("i Converted svg2png successfully.");
 		deferred.resolve({buffer: buffer, room: room});
 	})
 	.catch(function (err) {
-		console.log("Conv svg2png error");
+		console.log("! Conversion svg2png error.");
 		deferred.reject(err);
 	});
 
