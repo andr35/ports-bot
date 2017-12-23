@@ -26,4 +26,5 @@ BotSetup.setupBot(bot);
 // Polling mode
 console.log(chalk.default.green('> Starting Bot...'));
 bot.startPolling();
+bot.startWebhook(config.getWebHookPath(), null as any, config.getPort());
 console.log(chalk.default.bold.green('> Bot started!'));

@@ -127,7 +127,7 @@ export class Ports {
         const d = await this.getImageAsPng($, mapLabel);
         resolve(d);
       } catch (err) {
-        console.error(chalk.default.red(`> svg2png conversion error: ${err}`));
+        console.error(chalk.default.red(`> Svg to png conversion error: ${err}`));
         reject(err);
       }
     });
@@ -189,7 +189,7 @@ export class Ports {
         const d = await this.getImageAsPng($, `Someone said ${room.toUpperCase()}?`);
         resolve(d);
       } catch (err) {
-        console.error(chalk.default.red(`> svg2png conversion error: ${err}`));
+        console.error(chalk.default.red(`> Svg to png conversion error: ${err}`));
         reject(err);
       }
 
@@ -238,7 +238,7 @@ export class Ports {
     try {
       return readFileSync(imgPath, 'utf8');
     } catch (e) {
-      console.error(`> Error while loading map: ${mapName}`);
+      console.error(chalk.default.red(`> Error while loading map: ${mapName}`));
       throw e;
     }
   }

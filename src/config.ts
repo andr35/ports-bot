@@ -6,9 +6,11 @@ export class Config {
 
   private readonly ENV_BOT_TOKEN = 'BOT_TOKEN';
   private readonly ENV_PORT = 'PORT';
+  private readonly ENV_WEBHOOK_PATH = 'WEBHOOK_PATH';
 
   private readonly botToken: string;
-  private readonly port: string;
+  private readonly port: number;
+  private readonly webHookPath: string;
 
   static instance(): Config {
     if (!this.config) {
@@ -20,23 +22,37 @@ export class Config {
   private constructor() {
 
     this.botToken = process.env[this.ENV_BOT_TOKEN] || '';
-    this.port = process.env[this.ENV_PORT] || '';
+    this.port = parseInt(process.env[this.ENV_PORT] || '3000', 10);
+    this.webHookPath = process.env[this.ENV_WEBHOOK_PATH] || '';
 
     if (!this.botToken) {
-      console.warn(chalk.default.bold.red(`> Missing env var ${this.ENV_BOT_TOKEN}`));
-      process.exit(-1);
+      this.errMissingEnvVar(this.ENV_BOT_TOKEN);
+    }
+
+    if (!this.port) {
+      this.errMissingEnvVar(this.ENV_PORT);
+    }
+
+    if (!this.webHookPath) {
+      this.errMissingEnvVar(this.ENV_WEBHOOK_PATH);
     }
 
   }
-
-
 
   getBotToken(): string {
     return this.botToken;
   }
 
-  getPort(): string {
+  getPort(): number {
     return this.port;
   }
 
+  getWebHookPath(): string {
+    return this.webHookPath;
+  }
+
+  private errMissingEnvVar(envVar: string) {
+    console.warn(chalk.default.bold.red(`> Missing env var ${envVar}`));
+    process.exit(-1);
+  }
 }

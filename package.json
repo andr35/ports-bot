@@ -9,6 +9,7 @@
     "lint": "tslint -p tsconfig.json",
     "start": "node dist/index.js",
     "start:w": "nodemon dist/index.js",
+    "postinstall": "npm run build",
     "build": "tsc",
     "build:w": "tsc --watch --sourceMap"
   },
@@ -24,5 +25,11 @@
     "nodemon": "^1.14.3",
     "tslint": "^5.8.0",
     "typescript": "^2.6.2"
+  },
+  "now": {
+    "env": {
+      "BOT_TOKEN": "@bot_token",
+      "WEBHOOK_PATH": "@webhook_path"
+    }
   }
 }

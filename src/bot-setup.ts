@@ -176,7 +176,6 @@ export class BotSetup {
       (async (ctx: ContextMessageUpdate) => {
         try {
           const match: string[] = ctx['match'];
-          console.log('match!', typeof match, match);
           const room = match[2];
           const {buffer, caption} = await this.ports.getRoomImg(room);
           await (Math.random() > 0.1) ? ctx.replyWithPhoto({source: buffer}, {caption}) : ctx.replyWithSticker({source: buffer});
