@@ -1,3 +1,4 @@
+import {createServer} from 'http';
 import {Telegraf as Tg, ContextMessageUpdate} from 'telegraf/typings';
 import {Config} from './config';
 import {BotSetup} from './bot-setup';
@@ -23,8 +24,14 @@ BotSetup.setupBot(bot);
 //  Start bot
 // //////////////////////////////////////////////////
 
-// Polling mode
 console.log(chalk.default.green('> Starting Bot...'));
-bot.startPolling();
-bot.startWebhook(config.getWebHookPath(), null as any, config.getPort());
+
+bot.startPolling(); // Polling mode
+
+// bot.startWebhook(config.getWebHookPath(), null as any, config.getPort()); // Webhook mode
+
 console.log(chalk.default.bold.green('> Bot started!'));
+
+createServer((request, response) => {
+  response.end('Hello!');
+}).listen(config.getPort());
