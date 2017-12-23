@@ -1,16 +1,28 @@
 {
-    "name": "PortsBot",
-    "version": "3.0.0",
-    "main": "index.js",
-    "scripts": {
-        "start": "node index.js"
-    },
-    "dependencies": {
-    	"unirest": "0.4.x",
-        "node-telegram-bot-api": "0.20.x",
-        "q": "1.4.x",
-        "cheerio": "0.20.x",
-        "svg2png": "3.0.x",
-        "extend": "3.0.x"
-    }
+  "name": "ports-bot",
+  "version": "4.0.0",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "private": true,
+  "scripts": {
+    "rm": "rm -rf dist",
+    "lint": "tslint -p tsconfig.json",
+    "start": "node dist/index.js",
+    "start:w": "nodemon dist/index.js",
+    "build": "tsc",
+    "build:w": "tsc --watch --sourceMap"
+  },
+  "dependencies": {
+    "chalk": "^2.3.0",
+    "cheerio": "^1.0.0-rc.2",
+    "sharp": "^0.18.4",
+    "telegraf": "github:telegraf/telegraf#feature/typings"
+  },
+  "devDependencies": {
+    "@types/cheerio": "^0.22.6",
+    "@types/sharp": "^0.17.6",
+    "nodemon": "^1.14.3",
+    "tslint": "^5.8.0",
+    "typescript": "^2.6.2"
+  }
 }

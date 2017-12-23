@@ -1,4 +1,0 @@
-Place in this folder the self-signed Certificates.
-
-Private key: key.pem
-Public key: cert.pem
